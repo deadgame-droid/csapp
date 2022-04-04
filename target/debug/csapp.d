@@ -1,1 +1,0 @@
-/home/a/codes/rs_projects/csapp/target/debug/csapp: /home/a/codes/rs_projects/csapp/src/chapter2/mod.rs /home/a/codes/rs_projects/csapp/src/chapter2/show_bytes.rs /home/a/codes/rs_projects/csapp/src/main.rs
