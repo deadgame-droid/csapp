@@ -15,6 +15,7 @@ fn ex_2_9() {
     let yellow = Yellow;
     let red = Red;
     let red_purple = RedPurple;
+    println!();
     println!("Blue | Green = {:?}", blue | green);
     println!("Yellow & BlueGreen = {:?}", yellow & blue_green);
     println!("Red ^ RedPurple = {:?}", red ^ red_purple);
