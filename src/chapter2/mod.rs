@@ -8,6 +8,6 @@ mod show_bytes;
 mod rbg;
 // re-export
 pub use inplace_swap::*;
+pub use rbg::*;
 pub use reverse_array::*;
 pub use show_bytes::*;
-pub use rbg::*;
