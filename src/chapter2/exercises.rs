@@ -142,3 +142,20 @@ fn ex_2_23() {
         println!("\t0x{:0>8X}\t0x{:0>8X}\t0x{:0>8X}", w, fun1(w), fun2(w));
     }
 }
+
+#[test]
+fn ex_2_25() {
+    fn sum_elements(a: &[f32], length: usize) -> f32 {
+        let mut result = 0_f32;
+        let mut i = 0;
+        while i <= length - 1 {
+            result += a[i];
+            i += 1;
+        }
+        result
+    }
+
+    println!("\n{}", sum_elements(&[1.0,2.0,3.0,4.0],4));
+    // 数组越界访问错误，直接panic
+    // println!("\n{}", sum_elements(&[],0));
+}
