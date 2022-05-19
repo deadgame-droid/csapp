@@ -12,11 +12,12 @@ int tadd_ok(int x, int y) {
   }
 }
 
-int tsub_ok(int x, int y) { return tadd_ok(x, -y); }
+int tsub_ok_err(int x, int y) { return tadd_ok(x, -y); }
+int tsub_ok(int x, int y) {
+  
+}
 int main() {
-  //   int x = 2147483647;
-  //   int y = -2147483648;
   int x = 2147483647;
-  int y = -2147483647;
-  printf("x - y : %s\n", tsub_ok(x, y) == 0 ? "overflow" : "ok");
+  int y = -2147483648;
+  printf("x - y : %s\n", tsub_ok_err(x, y) == 0 ? "overflow" : "ok");
 }
