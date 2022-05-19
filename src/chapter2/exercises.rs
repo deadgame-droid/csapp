@@ -6,7 +6,7 @@ fn ex_2_7() {
     show_bytes(sp, s.len());
 }
 #[test]
-fn ex_2_9() {
+fn _9() {
     use super::Color::*;
 
     let blue = Blue;
@@ -21,7 +21,7 @@ fn ex_2_9() {
     println!("Red ^ RedPurple = {:?}", red ^ red_purple);
 }
 #[test]
-fn ex_2_10() {
+fn _10() {
     let mut x = 123;
     let mut y = 456;
     println!("\nx = {}, y = {}", x, y);
@@ -32,7 +32,7 @@ fn ex_2_10() {
 }
 
 #[test]
-fn ex_2_11() {
+fn _11() {
     let mut a = [1, 2, 3, 4, 5];
     reverse_array(a.as_mut_ptr(), a.len());
     println!("{:?}", a);
@@ -55,7 +55,7 @@ fn set_lowest_byte_one(x: &mut u32) {
 }
 
 #[test]
-fn ex_2_12() {
+fn _12() {
     let mut x = 0x87654321u32;
     keep_lowest_byte_and_set_others_zero(&mut x);
     println!("\n{:0>8X}", x);
@@ -69,7 +69,7 @@ fn ex_2_12() {
     println!("{:0>8X}", x);
 }
 #[test]
-fn ex_2_17() {
+fn _17() {
     const W: u32 = 4;
     // 2.1
     fn b2u(src: &str) -> u8 {
@@ -144,7 +144,7 @@ fn ex_2_23() {
 }
 
 #[test]
-fn ex_2_25() {
+fn _25() {
     fn sum_elements(a: &[f32], length: usize) -> f32 {
         let mut result = 0_f32;
         let mut i = 0;
@@ -155,7 +155,7 @@ fn ex_2_25() {
         result
     }
 
-    println!("\n{}", sum_elements(&[1.0,2.0,3.0,4.0],4));
+    println!("\n{}", sum_elements(&[1.0, 2.0, 3.0, 4.0], 4));
     // 数组越界访问错误，直接panic
     // println!("\n{}", sum_elements(&[],0));
 }
