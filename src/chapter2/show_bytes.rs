@@ -13,7 +13,9 @@ pub fn show_bytes(start: *const u8, len: usize) {
 pub fn show_bytes_unchecked<T>(start: &T) {
     let byte_pointer: *const u8;
     let len = mem::size_of::<T>();
-    unsafe { byte_pointer = mem::transmute::<&T,*const u8>(start); }
+    unsafe {
+        byte_pointer = mem::transmute::<&T, *const u8>(start);
+    }
     show_bytes(byte_pointer, len);
 }
 
