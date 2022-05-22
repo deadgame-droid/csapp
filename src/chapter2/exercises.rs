@@ -100,7 +100,7 @@ fn _17() {
         }
         sum as i8
     }
-    // 一位数的16进制数
+    // 一位16进制数
     fn x2b(src: &str) -> String {
         let mut bin = String::new();
         let src = if src.starts_with("0x") || src.starts_with("0X") {
@@ -146,8 +146,8 @@ fn ex_2_23() {
 #[test]
 fn _25() {
     fn sum_elements(a: &[f32], length: usize) -> f32 {
-        let mut result = 0_f32;
-        let mut i = 0;
+        let mut result: f32 = 0.0;
+        let mut i: usize = 0;
         while i <= length - 1 {
             result += a[i];
             i += 1;
