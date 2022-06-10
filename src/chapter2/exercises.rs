@@ -129,7 +129,7 @@ fn _17() {
 }
 
 #[test]
-fn ex_2_23() {
+fn _23() {
     fn fun1(word: u32) -> i32 {
         ((word << 24) >> 24) as i32
     }
