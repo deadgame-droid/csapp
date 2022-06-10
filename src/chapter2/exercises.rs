@@ -2,8 +2,8 @@ use super::*;
 #[test]
 fn ex_2_7() {
     let s = "abcdef";
-    let sp = s.as_ptr();
-    show_bytes(sp, s.len());
+    let sp = s.as_bytes();
+    show_bytes(&sp[0], s.len());
 }
 #[test]
 fn _9() {
@@ -34,7 +34,7 @@ fn _10() {
 #[test]
 fn _11() {
     let mut a = [1, 2, 3, 4, 5];
-    reverse_array(a.as_mut_ptr(), a.len());
+    reverse_array(&mut a[0], 5);
     println!("{:?}", a);
 }
 
