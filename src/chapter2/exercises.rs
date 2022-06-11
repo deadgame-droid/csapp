@@ -89,7 +89,7 @@ fn _17() {
         let mut char_indices = src.char_indices();
         let (idx, c) = char_indices.next().unwrap();
         if c == '1' {
-            sum = -2i32.pow(W - 1 - idx as u32);
+            sum = -(2i32.pow(W - 1 - idx as u32));
         }
         for (idx, c) in char_indices {
             match c {
@@ -148,7 +148,7 @@ fn _25() {
     fn sum_elements(a: &[f32], length: usize) -> f32 {
         let mut result: f32 = 0.0;
         let mut i: usize = 0;
-        while i <= length - 1 {
+        while i < length {
             result += a[i];
             i += 1;
         }
