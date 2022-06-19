@@ -159,3 +159,40 @@ fn _25() {
     // 数组越界访问错误，直接panic
     // println!("\n{}", sum_elements(&[],0));
 }
+#[test]
+fn _42() {
+    fn div16(mut x: i32) -> i32 {
+        // 负数向下舍入，比如：771.25 -> 772
+        // 正数舍去小数
+        x += 15;
+        x >> 4
+    }
+    assert_eq!(-17/16, div16(-17));
+}
+
+#[test]
+fn _43() {
+    const M: i32 = 2i32.pow(5) - 1;
+    const N: i32 = 2i32.pow(3);
+
+    fn arith(x: i32, y: i32) -> i32 {
+        x * M + y / N
+    }
+
+    fn optarith(mut x: i32, mut y: i32) -> i32 {
+        let t = x;
+        x <<= 5;
+        x -= t;
+
+        if y < 0 {
+            y += 7;
+            y >>= 3;
+        } else {
+            y >>= 3;
+        }
+
+        x + y
+    }
+
+    assert_eq!(arith(4, -9), optarith(4, -9));
+}

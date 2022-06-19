@@ -1,11 +1,12 @@
-#[cfg(test)]
-mod exercises;
-
 mod inplace_swap;
 mod reverse_array;
 mod show_bytes;
-// exercises of chapter2
 mod rbg;
+
+// exercises of chapter2
+#[cfg(test)]
+mod exercises;
+
 // re-export
 pub use inplace_swap::*;
 pub use rbg::*;
