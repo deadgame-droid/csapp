@@ -167,7 +167,7 @@ fn _42() {
         x += 15;
         x >> 4
     }
-    assert_eq!(-17/16, div16(-17));
+    assert_eq!(-17 / 16, div16(-17));
 }
 
 #[test]
@@ -195,4 +195,36 @@ fn _43() {
     }
 
     assert_eq!(arith(4, -9), optarith(4, -9));
+}
+
+#[allow(unused)]
+#[test]
+fn _44() {
+    let mut x: i32 = 0;
+    let mut y: i32 = 0;
+    println!();
+    x = i32::MIN;
+    println!(
+        "A. (x > 0) || (x - 1 < 0) => {}, x = {:#b}",
+        (x > 0) || (x.wrapping_sub(1) < 0),
+        x
+    );
+    println!(
+        "B. (x & 7) != 7 || ((x << 29) < 0) => {}",
+        (x & 7) != 7 || ((x << 29) < 0)
+    );
+    x = -65535; // 46341 <= x <= 65535 and -65535 <= x <= -46341
+    println!("C. (x * x) >= 0 => {}", (x.wrapping_mul(x)) >= 0);
+}
+
+#[test]
+fn _46() {
+    // b means binary num
+    // x = 0b0.00011001100110011001100
+    // A. 0.1 - x = 0b0.00000000000000000000000[1100]...
+    // B. 0.1 - x = 0.00000009;
+    println!(
+        "100 hours's deference: {}s",
+        0.00000009 * 100.0 * 60.0 * 60.0 * 10.0
+    );
 }
