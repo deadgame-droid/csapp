@@ -11,11 +11,17 @@ void show_bytes(byte_pointer start, size_t len) {
     printf("\n");
 }
 
-void show_int(int x) { show_bytes((byte_pointer)&x, sizeof(int)); }
+void show_int(int x) {
+    show_bytes((byte_pointer)&x, sizeof(int));
+}
 
-void show_float(float x) { show_bytes((byte_pointer)&x, sizeof(float)); }
+void show_float(float x) {
+    show_bytes((byte_pointer)&x, sizeof(float));
+}
 
-void show_pointer(void *x) { show_bytes((byte_pointer)&x, sizeof(void *)); }
+void show_pointer(void *x) {
+    show_bytes((byte_pointer)&x, sizeof(void *));
+}
 
 void test_show_bytes(int val) {
     int ival = val;
@@ -30,4 +36,6 @@ void test_2_7() {
     show_bytes((byte_pointer)s, strlen(s));
 }
 
-int main() { test_2_7(); }
+int main() {
+    test_2_7();
+}

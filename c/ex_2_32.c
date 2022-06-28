@@ -12,8 +12,12 @@ int tadd_ok(int x, int y) {
     }
 }
 
-int tsub_ok_err(int x, int y) { return tadd_ok(x, -y); }
-int tsub_ok(int x, int y) { return tadd_ok(x + 1, -(y + 1)); }
+int tsub_ok_err(int x, int y) {
+    return tadd_ok(x, -y);
+}
+int tsub_ok(int x, int y) {
+    return tadd_ok(x + 1, -(y + 1));
+}
 int tsub_ok1(int x, int y) {
     // ~y + 1 == -y is true
     if (x > 0 && y < 0 && ~y + 1 == y) {
