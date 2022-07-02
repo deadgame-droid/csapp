@@ -1,6 +1,6 @@
 use super::*;
 #[test]
-fn ex_2_7() {
+fn _7() {
     let s = "abcdef";
     let sp = s.as_bytes();
     show_bytes(&sp[0], s.len());
@@ -227,3 +227,6 @@ fn _46() {
         0.00000009 * 100.0 * 60.0 * 60.0 * 10.0
     );
 }
+
+// _47
+// see md/chapter2/_47.md

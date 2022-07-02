@@ -17,7 +17,7 @@ int tmult_ok2(int x, int y) {
 
 int main() {
     int x = 2133333333;
-    int y = 2222222222;
+    int y = 2222222;
     int res = tmult_ok(x, y);
     int res2 = tmult_ok2(x, y);
     printf("%x * %x = %x, %d\n", x, y, x * y, res);
