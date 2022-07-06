@@ -164,8 +164,9 @@ fn _42() {
     fn div16(mut x: i32) -> i32 {
         // 负数向下舍入，比如：771.25 -> 772
         // 正数舍去小数
-        x += 15;
-        x >> 4
+        // 负数的偏执值为15，正数为0
+        let bias = (x >> 31) & 0xF;
+        (x + bias) >> 4
     }
     assert_eq!(-17 / 16, div16(-17));
 }
@@ -228,5 +229,73 @@ fn _46() {
     );
 }
 
-// _47
+// _47()
 // see md/chapter2/_47.md
+
+#[test]
+fn _48() {
+    // decimal: 3510593
+    let x: i32 = 0x00359141;
+    // 32位整数转为单精度，使用u32来表示。
+    fn int2float(x: i32) -> u32 {
+        let mut shf_bits: u32 = 0;
+        let mut f = x as u32;
+        while f & 0x80000000 == 0 {
+            f <<= 1;
+            shf_bits += 1;
+        }
+        f <<= 1;
+        shf_bits += 1;
+        let e: u32 = 32 - shf_bits + 127;
+        // sign 1bit
+        let mut ret = 0x80000000u32 & x as u32;
+        // E 8bit
+        ret |= e << 23;
+        // frac 23
+        ret |= f >> 9;
+        ret
+    }
+    let ret = int2float(x);
+    println!("{}", f32::from_bits(ret));
+}
+
+#[test]
+fn _49() {
+    // 2^24 + 1
+    let u = 0x01000001u32;
+    println!("{:0>8X}", u);
+    let f = u as f32;
+    println!("{:0>8X}", f.to_bits());
+}
+
+#[test]
+fn _52() {
+    use super::f8::*;
+
+    let arr: [u8; 5] = [0b00110000, 0b01011110, 0b00101001, 0b01101111, 0b00000001];
+    println!("     格式A             |     格式B     ");
+    println!("   位   |      值      |   位   |     值");
+    for e in arr {
+        let eav = F8a::from_bits(e);
+        let ebv = eav.to_f8b();
+        println!("{:0>8b}|{}|{:0>8b}|{}", e, eav, ebv.bits(), ebv);
+    }
+}
+
+#[test]
+fn _53() {
+    // 自定义双精度浮点数的 POS_INFINITY, NEG_INFINITY, NEG_ZERO
+    // 双精度能够表示的最大的有限数, 提示：f64能表示的最大的有限数约等于1.8x10^308
+
+    //实际上加最大浮点数（非无穷）的小数最后一位就行了，但是这毕竟是约数，加大点也行。
+    let pos_infinity: f64 = 1.8 * 10f64.powi(308) + 0.5;
+    println!("POS_INFINITY: {}", pos_infinity,);
+
+    let neg_infinity: f64 = -pos_infinity;
+    println!("NEG_INFINITY: {}", neg_infinity);
+
+    let neg_zero: f64 = -0f64;
+    println!("NEG_ZERO: {}", neg_zero);
+    assert_eq!(f64::INFINITY, pos_infinity);
+    assert_eq!(f64::NEG_INFINITY, neg_infinity);
+}
