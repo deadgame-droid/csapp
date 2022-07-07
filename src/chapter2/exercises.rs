@@ -161,7 +161,7 @@ fn _25() {
 }
 #[test]
 fn _42() {
-    fn div16(mut x: i32) -> i32 {
+    fn div16(x: i32) -> i32 {
         // 负数向下舍入，比如：771.25 -> 772
         // 正数舍去小数
         // 负数的偏执值为15，正数为0
@@ -298,4 +298,124 @@ fn _53() {
     println!("NEG_ZERO: {}", neg_zero);
     assert_eq!(f64::INFINITY, pos_infinity);
     assert_eq!(f64::NEG_INFINITY, neg_infinity);
+}
+
+// homeworks
+// _55() none
+// _56() none
+// _57() none
+
+#[test]
+fn _58() {
+    // 判断系统是大端还是小端
+    fn is_little_endian() -> bool {
+        let a = 0x0100u16;
+        let first = unsafe {
+            let a_ptr = std::mem::transmute::<&u16, *const u8>(&a);
+            *a_ptr
+        };
+
+        first == 0
+    }
+
+    assert!(is_little_endian());
+}
+
+#[test]
+fn _59() {
+    // 将x的最低有效字节和y的其余字节组合生成新的数字
+    fn mix(x: u32, y: u32) -> u32 {
+        let x_last_byte = x & 0x000000ff;
+        let y_other_bytes = y & 0xffffff00;
+        x_last_byte | y_other_bytes
+    }
+
+    assert_eq!(0x765432EF, mix(0x89ABCDEF, 0x76543210));
+}
+
+#[test]
+fn _60() {
+    fn replace_byte(x: u32, i: u32, b: u8) -> u32 {
+        let mask_code = 0xffu32 << (i * 8);
+        let b_u32_shift = (b as u32) << (i * 8);
+        let x_masked = x & !mask_code;
+        x_masked | b_u32_shift
+    }
+    assert_eq!(0x12AB5678, replace_byte(0x12345678, 2, 0xAB));
+    assert_eq!(0x123456AB, replace_byte(0x12345678, 0, 0xAB));
+}
+// 以下题目对int值的大小是不确定的，姑且使用i32替代，但是应对i8,i16都有效
+#[test]
+fn _61() {
+    fn set_all_bits_1(x: i32) -> i32 {
+        x | -1
+    }
+    fn set_all_bits_0(_x: i32) -> i32 {
+        // _x & 0
+        0
+    }
+    fn set_lowest_byte_1(x: i32) -> i32 {
+        x | 0xff
+    }
+    fn set_highest_byte_0(x: i32) -> i32 {
+        let w = std::mem::size_of::<i32>() << 3;
+        x & !(0xff << (w - 8))
+    }
+    let x = 0x12345678;
+    assert_eq!(-1, set_all_bits_1(x));
+    assert_eq!(0, set_all_bits_0(x));
+    assert_eq!(0x123456ff, set_lowest_byte_1(x));
+    assert_eq!(0x00345678, set_highest_byte_0(x));
+}
+
+#[test]
+fn _62() {
+    fn int_shifts_are_arithmetic() -> bool {
+        let x = -1;
+        (x >> 1) == -1
+    }
+
+    assert!(int_shifts_are_arithmetic());
+}
+
+#[test]
+fn _63() {
+    fn srl(x: u32, k: i32) -> u32 {
+        let xsra: u32 = (x as i32 >> k) as u32;
+        // 如果x为负数的补码，则mask对应位置为1，否则全为0
+        let mask = ((i32::MIN & x as i32) >> (k - 1)) as u32;
+        xsra & !mask
+    }
+
+    fn sra(x: i32, k: i32) -> i32 {
+        let xsrl: i32 = (x as u32 >> k) as i32;
+        // 如果x为负数的补码，则mask对应位置为1，否则全为0
+        let mask = (i32::MIN & x) >> (k - 1);
+        xsrl | mask
+    }
+    let x: u32 = 0xf2345678;
+    assert_eq!(srl(x, 8), x >> 8);
+    let ix: i32 = -1;
+    assert_eq!(sra(ix, 8), ix >> 8);
+}
+
+#[test]
+fn _64() {
+    // Return true when any odd bit of x equals 1;
+    // Assume w=32
+    fn any_odd_one(x: u32) -> bool {
+        let ret = x & 0x55555555;
+        ret != 0
+    }
+    assert!(any_odd_one(0x77777777));
+    assert!(!any_odd_one(0xaaaaaaaa));
+}
+
+#[test]
+fn _65() {
+    /* Return true when x contains an odd number of 1s; false otherwise.
+    Assume w = 32 */
+    fn odd_ones(x: u32) -> bool {
+        todo!()
+    }
 }

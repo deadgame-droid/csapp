@@ -2,10 +2,7 @@ use std::mem;
 
 pub fn show_bytes(start: &u8, len: usize) {
     for i in 0..len {
-        let res;
-        unsafe {
-            res = *(start as *const u8 as *mut u8).add(i);
-        }
+        let res = unsafe { *(start as *const u8 as *mut u8).add(i) };
         print!(" {:0>2x}", res);
     }
     println!();
