@@ -414,8 +414,212 @@ fn _64() {
 #[test]
 fn _65() {
     /* Return true when x contains an odd number of 1s; false otherwise.
-    Assume w = 32 */
-    fn odd_ones(x: u32) -> bool {
-        todo!()
+    Assume w=32 */
+    fn odd_ones(mut x: u32) -> bool {
+        x ^= x >> 1;
+        x ^= x >> 2;
+        x ^= x >> 4;
+        x ^= x >> 8;
+        x ^= x >> 16;
+        (x & 1) == 1
     }
+    assert!(!odd_ones(0xffffffff));
+    assert!(odd_ones(0xfffffffe));
+    assert!(!odd_ones(0x11111111));
+    assert!(odd_ones(0x11001110));
+}
+
+#[test]
+fn _66() {
+    /*
+     * Generate mask indicating leftmost 1 in x. Assume w=32.
+     * For example, 0xFF00 --> 0x8000, and 0x6600 --> 0x4000.
+     * If x = 0, then return 0.
+     */
+    fn leftmost_one(mut x: u32) -> i32 {
+        // x => 0b0..01..1
+        x |= x >> 1;
+        x |= x >> 2;
+        x |= x >> 4;
+        x |= x >> 8;
+        x |= x >> 16;
+        let y = !(x >> 1);
+        (x & y) as i32
+    }
+
+    assert_eq!(0x8000, leftmost_one(0xFF00));
+    assert_eq!(0x4000, leftmost_one(0x6600));
+}
+
+#[test]
+fn _67() {
+    // see c/chapter2/_67.c
+}
+
+#[test]
+fn _68() {
+    /*
+     * Mask with least signficant n bits set to 1
+     * Examples: n = 6 --> 0x3F, n = 17 --> 0x1FFFF
+     * Assume 1 <= n <= w
+     */
+    fn lower_one_mask(n: i32) -> i32 {
+        let ret = -2 << (n - 1);
+        !ret
+    }
+
+    assert_eq!(0x3F, lower_one_mask(6));
+    assert_eq!(0x1FFFF, lower_one_mask(17));
+    assert_eq!(-1, lower_one_mask(32));
+}
+
+#[test]
+fn _69() {
+    /*
+     * Do rotaing left shift. Assume 0 <= n < w
+     * Examples when x = 0x12345678 and w = 32:
+     *      n=4 -> 0x23456781, n=20 -> 0x67812345
+     */
+    fn rotate_left(x: u32, n: i32) -> u32 {
+        let w = std::mem::size_of::<u32>() * 8;
+        let left = x & !(u32::MAX >> n);
+        (x << n) | (left >> (w as i32 - n - 1) >> 1)
+    }
+    assert_eq!(0x12345678, rotate_left(0x12345678, 0));
+    assert_eq!(0x23456781, rotate_left(0x12345678, 4));
+    assert_eq!(0x67812345, rotate_left(0x12345678, 20));
+}
+
+#[allow(overflowing_literals)]
+#[test]
+fn _70() {
+    /*
+     * Return true when x can be represented as an n-bit, 2's-complement
+     * number; false otherwise
+     * Assume 1 <= n <= w
+     */
+    fn fits_bits(x: i32, n: i32) -> bool {
+        let w = (std::mem::size_of::<i32>() << 3) as i32;
+        x << (w - n) >> (w - n) == x
+    }
+
+    assert!(fits_bits(0xffffffff, 1));
+    assert!(fits_bits(0xff000000, 25));
+    assert!(!fits_bits(0xff000000, 24));
+    assert!(fits_bits(0x000000ff, 9));
+    assert!(!fits_bits(0x000000ff, 8));
+}
+
+#[allow(overflowing_literals)]
+#[test]
+fn _71() {
+    /*
+     * Declaration of data type where 4 bytes are packed
+     * into an unsigned
+     */
+
+    fn xbyte(word: u32, bytenum: i32) -> i32 {
+        // (word >> (bytenum << 3)) & 0xFF 错误: 符号未考虑
+        (word as i32) << (24 - (bytenum << 3)) >> 24
+    }
+    assert_eq!(0xFFFFFFF0, xbyte(0x00F00000, 2));
+    assert_eq!(0x0000000F, xbyte(0x0F000000, 3));
+}
+
+#[test]
+fn _72() {
+    /* Copy integer into buffer if space is available */
+    /* WARNING: The following code is buggy */
+    /*
+     * also see c/chapter2/_72.c
+     * void copy_int(int val, void *buf, int maxbytes)  {
+     *     if (maxbytes-sizeof(val) >= 0 ) {
+     *         memcpy(buf, (void *) &val, sizeof(val));
+     *     }
+     * }
+     */
+    fn copy_int(val: i32, buf: &mut [u8], maxbytes: i32) {
+        if maxbytes >= std::mem::size_of_val(&val) as i32 {
+            buf.copy_from_slice(&val.to_le_bytes());
+        }
+    }
+
+    let mut buf = [0u8; 4];
+    dbg!(buf);
+    let val = 0x01020304;
+    let maxbytes = buf.len();
+    copy_int(val, &mut buf, maxbytes as i32);
+    dbg!(buf);
+}
+#[allow(clippy::unit_cmp)]
+#[allow(clippy::short_circuit_statement)]
+#[test]
+fn _73() {
+    /* Addition that saturates to TMin or TMax  */
+    fn saturating_add(x: i32, y: i32) -> i32 {
+        let mut sum = x.wrapping_add(y);
+        let min = i32::MIN;
+        // positive overflow
+        // x > 0 && y > 0 && sum < 0
+        let pos_overflow = x & min != min && y & min != min && sum & min == min;
+        // negetive overflow
+        // x < 0 && y < 0 && sum >=0
+        let neg_overflow = x & min == min && y & min == min && sum & min != min;
+        // 因为不能使用if，这个利用了一个技巧，强行使用&&和赋值的结果()，实现if的效果。
+        let _ = pos_overflow && (sum = i32::MAX) == () || neg_overflow && (sum = i32::MIN) == ();
+        sum
+    }
+    assert_eq!(i32::MIN, saturating_add(i32::MIN, -1));
+    assert_eq!(i32::MAX, saturating_add(i32::MAX, 1));
+}
+
+#[test]
+fn _74() {
+    /*
+     * Detemine whether arguments can be subtracted without overflow
+     */
+    fn tsub_ok(x: i32, y: i32) -> bool {
+        let z = x.wrapping_sub(y);
+        let min = i32::MIN;
+        // positive overflow
+        // x > 0 && -y > 0 && sum < 0
+        let pos_overflow = x & min != min && y & min == min && z & min == min;
+        // negetive overflow
+        // x < 0 && -y < 0 && sum >=0
+        let neg_overflow = x & min == min && y & min != min && z & min != min;
+        !(pos_overflow || neg_overflow)
+    }
+    assert!(tsub_ok(0x00, 0x00));
+    assert!(!tsub_ok(0, i32::MIN));
+}
+
+#[test]
+fn _75() {
+    // 提供的计算高w位的有符号数函数
+    fn signed_high_prod(x: i32, y: i32) -> i32 {
+        let prod: i64 = x as i64 * y as i64;
+        (prod >> 32) as i32
+    }
+
+    fn unsigned_high_prod(x: u32, y: u32) -> u32 {
+        let w = std::mem::size_of::<i32>() * 8;
+        let sign_x = x >> (w - 1);
+        let sign_y = y >> (w - 1);
+        let signed_ret = signed_high_prod(x as i32, y as i32);
+        (signed_ret as u32)
+            .wrapping_add(sign_x * y)
+            .wrapping_add(sign_y * x)
+    }
+
+    fn another_unsigned_high_prod(x: u32, y: u32) -> u32 {
+        let prod: u64 = x as u64 * y as u64;
+        (prod >> 32) as u32
+    }
+
+    let x: u32 = 0x77777774;
+    let y: u32 = 0x88888828;
+    println!("{:X}", x as u64 * y as u64);
+    println!("i32:    {:X}", signed_high_prod(x as i32, y as i32));
+    println!("a-u32:  {:X}", another_unsigned_high_prod(x, y));
+    println!("u32 :   {:X}", unsigned_high_prod(x, y));
 }
