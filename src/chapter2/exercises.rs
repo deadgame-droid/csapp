@@ -579,14 +579,14 @@ fn _74() {
      * Detemine whether arguments can be subtracted without overflow
      */
     fn tsub_ok(x: i32, y: i32) -> bool {
-        let z = x.wrapping_sub(y);
-        let min = i32::MIN;
+        let z: i32 = x.wrapping_sub(y);
+        let min: i32 = i32::MIN;
         // positive overflow
         // x > 0 && -y > 0 && sum < 0
-        let pos_overflow = x & min != min && y & min == min && z & min == min;
+        let pos_overflow: bool = x & min != min && y & min == min && z & min == min;
         // negetive overflow
         // x < 0 && -y < 0 && sum >=0
-        let neg_overflow = x & min == min && y & min != min && z & min != min;
+        let neg_overflow: bool = x & min == min && y & min != min && z & min != min;
         !(pos_overflow || neg_overflow)
     }
     assert!(tsub_ok(0x00, 0x00));
@@ -602,10 +602,10 @@ fn _75() {
     }
 
     fn unsigned_high_prod(x: u32, y: u32) -> u32 {
-        let w = std::mem::size_of::<i32>() * 8;
-        let sign_x = x >> (w - 1);
-        let sign_y = y >> (w - 1);
-        let signed_ret = signed_high_prod(x as i32, y as i32);
+        let w: usize = std::mem::size_of::<i32>() * 8;
+        let sign_x: u32 = x >> (w - 1);
+        let sign_y: u32 = y >> (w - 1);
+        let signed_ret: i32 = signed_high_prod(x as i32, y as i32);
         (signed_ret as u32)
             .wrapping_add(sign_x * y)
             .wrapping_add(sign_y * x)
@@ -623,3 +623,9 @@ fn _75() {
     println!("a-u32:  {:X}", another_unsigned_high_prod(x, y));
     println!("u32 :   {:X}", unsigned_high_prod(x, y));
 }
+
+#[test]
+fn _76() {
+    // see c/chapter2/_76.c
+}
+
