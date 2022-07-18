@@ -754,3 +754,18 @@ fn _84() {
 fn _85() {
     // see book page93
 }
+
+#[test]
+fn _86() {
+    // see book page94
+}
+
+#[test]
+fn _87() {
+    // see book page94
+}
+
+#[test]
+fn _88() {
+    // see book page95
+}
