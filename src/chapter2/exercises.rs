@@ -626,6 +626,131 @@ fn _75() {
 
 #[test]
 fn _76() {
-    // see c/chapter2/_76.c
+    // see /c
 }
 
+#[test]
+fn _77() {
+    let x = 1;
+    // x * 17
+    assert_eq!(17, (x << 4) + 1);
+    // x * -7
+    assert_eq!(-7, x - (x << 3));
+    // x * 60
+    assert_eq!(60, (x << 6) - (x << 2));
+    // x * -112
+    assert_eq!(-112, (x << 4) - (x << 7));
+}
+
+#[test]
+fn _78() {
+    // Assume 0 <= k < w-1
+    // 负数向零舍入
+    fn divide_power2(mut x: i32, k: i32) -> i32 {
+        let is_neg = x & i32::MIN == i32::MIN;
+        if is_neg {
+            x += (1 << k) - 1;
+        }
+        x >> k
+    }
+    let x = i32::MIN + 7;
+
+    assert_eq!(x / 2, divide_power2(x, 1));
+    assert_eq!(x / 4, divide_power2(x, 2));
+}
+
+#[allow(overflowing_literals)]
+#[test]
+fn _79() {
+    fn mul3div4(x: i32) -> i32 {
+        let is_neg = x & i32::MIN == i32::MIN;
+        let mut ret = (x << 1) + x;
+        if is_neg {
+            ret += 3;
+        }
+        ret >> 2
+    }
+    let x = 0x87654321;
+    assert!(mul3div4(x) == x.wrapping_mul(3).wrapping_div(4));
+}
+
+#[test]
+fn _80() {
+    // 3/4 * x, no overflow, round to zero
+    fn threefourths(x: i32) -> i32 {
+        let is_neg = x & i32::MIN == i32::MIN;
+        if is_neg {
+            let offset = (((x + 1) >> 1) & 1) & (x & 1);
+            ((x + 1) >> 1) + ((x + 3) >> 2) - offset
+        } else {
+            let offset = ((x >> 1) & 1) & (x & 1);
+            (x >> 1) + (x >> 2) + offset
+        }
+    }
+    assert_eq!(threefourths(8), 6);
+    assert_eq!(threefourths(9), 6);
+    assert_eq!(threefourths(10), 7);
+    assert_eq!(threefourths(11), 8);
+    assert_eq!(threefourths(12), 9);
+
+    assert_eq!(threefourths(-8), -6);
+    assert_eq!(threefourths(-9), -6);
+    assert_eq!(threefourths(-10), -7);
+    assert_eq!(threefourths(-11), -8);
+    assert_eq!(threefourths(-12), -9);
+}
+
+#[allow(overflowing_literals)]
+#[test]
+fn _81() {
+    let j = 4;
+    let k = 8;
+    assert_eq!(0xffffff00, -1 << k);
+    assert_eq!(0x00000ff0, !(-1 << (k)) << j);
+}
+
+#[test]
+fn _82() {
+    // see book page93
+}
+
+#[test]
+fn _83() {
+    // see book page93
+}
+
+#[test]
+fn _84() {
+    // x less than y
+    fn float_le(x: f32, y: f32) -> bool {
+        let ux: u32 = x.to_bits();
+        let uy: u32 = y.to_bits();
+
+        // Get the sign bits
+        let sx: u32 = ux >> 31;
+        let sy: u32 = uy >> 31;
+
+        if ux << 1 == 0 && 0 == uy << 1 {
+            // both zero, -0 or 0
+            true
+        } else if sx == sy {
+            if sx == 0 {
+                ux <= uy
+            } else {
+                ux >= uy
+            }
+        } else {
+            sx > sy
+        }
+    }
+
+    assert!(!float_le(-0f32, 0f32));
+    assert!(float_le(-1.2, -1.0));
+    assert!(float_le(-1.0, 1.0));
+    assert!(float_le(1.0, 1.2));
+}
+
+#[test]
+fn _85() {
+    // see book page93
+}
