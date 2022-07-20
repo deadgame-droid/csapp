@@ -230,7 +230,7 @@ fn _46() {
 }
 
 // _47()
-// see md/chapter2/_47.md
+// see _47.md
 
 #[test]
 fn _48() {
@@ -453,7 +453,7 @@ fn _66() {
 
 #[test]
 fn _67() {
-    // see c/chapter2/_67.c
+    // see _67.c
 }
 
 #[test]
@@ -531,7 +531,7 @@ fn _72() {
     /* Copy integer into buffer if space is available */
     /* WARNING: The following code is buggy */
     /*
-     * also see c/chapter2/_72.c
+     * also see _72.c
      * void copy_int(int val, void *buf, int maxbytes)  {
      *     if (maxbytes-sizeof(val) >= 0 ) {
      *         memcpy(buf, (void *) &val, sizeof(val));
@@ -626,7 +626,7 @@ fn _75() {
 
 #[test]
 fn _76() {
-    // see /c
+    // see c
 }
 
 #[test]
