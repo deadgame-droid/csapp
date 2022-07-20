@@ -6,6 +6,7 @@ mod inplace_swap;
 mod rbg;
 mod reverse_array;
 mod show_bytes;
+mod float_bits;
 
 // re-export
 pub use inplace_swap::*;

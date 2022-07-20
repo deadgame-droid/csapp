@@ -744,7 +744,7 @@ fn _84() {
         }
     }
 
-    assert!(!float_le(-0f32, 0f32));
+    assert!(float_le(-0f32, 0f32));
     assert!(float_le(-1.2, -1.0));
     assert!(float_le(-1.0, 1.0));
     assert!(float_le(1.0, 1.2));
@@ -768,4 +768,242 @@ fn _87() {
 #[test]
 fn _88() {
     // see book page95
+}
+
+#[test]
+fn _89() {
+    // see book page95
+}
+
+#[test]
+fn _90() {
+    fn fpwr2(x: i32) -> f32 {
+        /* Result exponent and fraction */
+        let exp: u32;
+        let frac: u32;
+
+        if x < -149 {
+            /* Too small. Return 0.0 */
+            exp = 0;
+            frac = 0;
+        } else if x < -126 {
+            /* Denormalized result */
+            exp = 0;
+            frac = 1 << (149 + x);
+        } else if x < 128 {
+            /* Normalized result */
+            exp = (x + 127) as u32;
+            frac = 0;
+        } else {
+            /* Too big. Return +oo */
+            exp = 255;
+            frac = 0;
+        }
+        let u = exp << 23 | frac;
+        f32::from_bits(u)
+    }
+
+    for i in -150..129 {
+        let left = 2f32.powi(i);
+        let right = fpwr2(i);
+        if left != right {
+            println!("{} != {}", left, right);
+            dbg!(i);
+        }
+    }
+}
+#[test]
+fn _91() {
+    // see book page96
+}
+
+#[test]
+fn _92() {
+    // Compute -f. If f is NaN, then return f.
+    fn float_negate(f: u32) -> u32 {
+        let is_nan = (f & 0x7f800000 == 0x7f800000) && (f & 0x007fffff != 0);
+        if is_nan {
+            f
+        } else {
+            let sign_bits = f ^ 0x80000000;
+            let other_bits = f & 0x7fffffff;
+            sign_bits | other_bits
+        }
+    }
+    // test
+    let x = 0x7f800000;
+    assert_eq!((-f32::from_bits(x)).to_bits(), float_negate(x));
+}
+
+#[test]
+fn _93() {
+    // Compute -f. If f is NaN, then return f.
+    fn float_absval(f: u32) -> u32 {
+        let is_nan = (f & 0x7f800000 == 0x7f800000) && (f & 0x007fffff != 0);
+        if is_nan {
+            f
+        } else {
+            f & 0x7fffffff
+        }
+    }
+    // test
+    let x = 0xff001000;
+    assert_eq!((f32::from_bits(x).abs()).to_bits(), float_absval(x));
+}
+
+#[test]
+fn _94() {
+    use super::float_bits::*;
+    // Compute -f. If f is NaN, then return f.
+    fn float_twice(f: u32) -> u32 {
+        if is_nan(f) {
+            f
+        } else if is_denorm(f) {
+            let frac_bits = f & 0x007fffff;
+            (frac_bits << 1) | (f & 0xff000000)
+        } else if is_norm(f) {
+            // 规格化数直接将阶码位进1，若已达到最大值则进阶为无穷大
+            let exp_bits = f & 0x7f800000;
+            if exp_bits == 0x7f000000 {
+                // 进阶为无穷大
+                let sign_bit = f & 0x80000000;
+                sign_bit | 0x7f800000
+            } else {
+                (exp_bits + 0x00800000) | (f & 0x807fffff)
+            }
+        } else {
+            // 无穷则返回无穷
+            f
+        }
+    }
+    // test
+    let mut x = 0x00000000;
+    assert_eq!((f32::from_bits(x) * 2.0).to_bits(), float_twice(x));
+    x = 0x00400000;
+    assert_eq!((f32::from_bits(x) * 2.0).to_bits(), float_twice(x));
+    x = 0x004fffff;
+    assert_eq!((f32::from_bits(x) * 2.0).to_bits(), float_twice(x));
+    x = 0x007fffff;
+    assert_eq!((f32::from_bits(x) * 2.0).to_bits(), float_twice(x));
+}
+
+#[test]
+fn _95() {
+    use super::float_bits::*;
+    // Compute -f. If f is NaN, then return f.
+    fn float_half(f: u32) -> u32 {
+        if is_nan(f) {
+            f
+        } else if is_denorm(f) {
+            let frac_bits = f & 0x007fffff;
+            // 向偶数舍入
+            let trancate = frac_bits & 1;
+            let last_bit = (frac_bits >> 1) & 1;
+            ((frac_bits >> 1) + (trancate & last_bit)) | (f & 0xff800000)
+        } else if is_norm(f) {
+            // 规格化数直接将阶码位减1，若阶码已达到最小值则变为非规格化数
+            let exp_bits = f & 0x7f800000;
+            if exp_bits == 0x00800000 {
+                // 降为非规格化数
+                f & 0xff00000 | ((f & 0x00fffff) >> 1)
+            } else {
+                (exp_bits - 0x00800000) | (f & 0x807fffff)
+            }
+        } else {
+            // 无穷则返回无穷
+            f
+        }
+    }
+    // test
+    let mut x = 0x00000000;
+    assert_eq!((f32::from_bits(x) * 0.5).to_bits(), float_half(x));
+    x = 0x00400000;
+    assert_eq!((f32::from_bits(x) * 0.5).to_bits(), float_half(x));
+    x = 0x004fffff;
+    assert_eq!((f32::from_bits(x) * 0.5).to_bits(), float_half(x));
+    x = 0x007fffff;
+    assert_eq!((f32::from_bits(x) * 0.5).to_bits(), float_half(x));
+}
+
+#[test]
+fn _96() {
+    use super::float_bits::*;
+    fn float_f2i(f: u32) -> i32 {
+        if is_nan(f) || is_denorm(f) {
+            0
+        } else if is_norm(f) {
+            let sign = f >> 31;
+            let exp = f >> 23 & 0xff;
+            if exp < 127 {
+                0
+            } else {
+                let e = exp - 127;
+                let frac = f & 0x7fffff;
+
+                let ret = if e <= 23 {
+                    (1 << e) + (frac >> (23 - e))
+                } else {
+                    (frac + 0x800000) << e
+                };
+
+                if sign == 0 && ret <= i32::MAX as u32 {
+                    ret as i32
+                } else if sign == 1 && ret <= i32::MAX as u32 + 1 {
+                    (!ret + 1) as i32
+                } else {
+                    #[allow(overflowing_literals)]
+                    0x80000000
+                }
+            }
+        } else {
+            let sign = f >> 31;
+            if sign == 0 {
+                i32::MAX
+            } else {
+                i32::MIN
+            }
+        }
+    }
+    let x = 0x2f800000;
+    assert_eq!(float_f2i(x), f32::from_bits(x) as i32);
+}
+
+#[test]
+fn _97() {
+    fn float_i2f(i: i32) -> u32 {
+        if i == 0 {
+            return 0;
+        }
+        let sign = (i >> 31) as u32;
+        let i_abs = if sign == 1 { (!i + 1) as u32 } else { i as u32 };
+        let mut one_offset: u32 = 0;
+        let mut frac = i_abs;
+        while frac & 0x80000000 == 0 {
+            frac <<= 1;
+            one_offset += 1;
+        }
+        // 因为非规格化数的精度为23+1(隐式)，第二位1为frac的第一位, 所以在此多位移一次
+        frac <<= 1;
+        one_offset += 1;
+        // 如果i的有效位超过能保存的24位，则需要向偶数舍入
+        if one_offset < 9 {
+            let frac_last_bit = frac >> 9 & 1;
+            let trancate = frac << 23 >> 23;
+            if trancate > 2u32.pow(9 - one_offset - 2)
+                || (trancate == 2u32.pow(9 - one_offset - 2) && frac_last_bit == 1)
+            {
+                frac = (frac >> 9) + 1;
+            } else {
+                frac >>= 9;
+            }
+        } else {
+            frac >>= 9;
+        }
+        let exp = 32 - one_offset + 127;
+        // 相加是因为frac在舍入时，可以溢出23位，此时只需将舍入的部分与exp相加
+        sign << 31 | ((exp << 23) + frac)
+    }
+
+    assert_eq!(0f32.to_bits(), float_i2f(0));
+    assert_eq!(8f32.to_bits(), float_i2f(8));
 }
