@@ -311,7 +311,7 @@ fn _58() {
     fn is_little_endian() -> bool {
         let a = 0x0100u16;
         let first = unsafe {
-            let a_ptr = std::mem::transmute::<&u16, *const u8>(&a);
+            let a_ptr = &a as *const u16 as *const u8;
             *a_ptr
         };
 
