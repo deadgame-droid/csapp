@@ -1,22 +1,31 @@
-	.file	"_26.c"
 	.text
-	.globl	fun_a
-	.type	fun_a, @function
-fun_a:
-.LFB0:
+	.file	"_26.c"
+	.globl	fun_a                           # -- Begin function fun_a
+	.p2align	4, 0x90
+	.type	fun_a,@function
+fun_a:                                  # @fun_a
 	.cfi_startproc
-	movl	$0, %eax
-	jmp	.L2
-.L3:
-	xorq	%rdi, %rax
-	shrq	%rdi
-.L2:
+# %bb.0:
+	xorl	%eax, %eax
 	testq	%rdi, %rdi
-	jne	.L3
+	je	.LBB0_4
+# %bb.1:
+	movq	%rdi, %rcx
+	.p2align	4, 0x90
+.LBB0_2:                                # =>This Inner Loop Header: Depth=1
+	xorq	%rdi, %rax
+	shrq	%rcx
+	cmpq	$1, %rdi
+	movq	%rcx, %rdi
+	ja	.LBB0_2
+# %bb.3:
 	andl	$1, %eax
-	ret
+.LBB0_4:
+	retq
+.Lfunc_end0:
+	.size	fun_a, .Lfunc_end0-fun_a
 	.cfi_endproc
-.LFE0:
-	.size	fun_a, .-fun_a
-	.ident	"GCC: (GNU) 11.2.1 20220127 (Red Hat 11.2.1-9)"
-	.section	.note.GNU-stack,"",@progbits
+                                        # -- End function
+	.ident	"clang version 13.0.1 (Red Hat 13.0.1-1.el9)"
+	.section	".note.GNU-stack","",@progbits
+	.addrsig
