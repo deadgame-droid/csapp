@@ -176,7 +176,7 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-    // 由于英文太差，题目都看不懂，最低位在这是0位，为偶数位，上面的例子也没好好看。
+    // 由于英文太差，题目都看错了，最低位在是0位，为偶数位
     // 0x55: 01010101, os: 0x55555555
     int os = 0x55 | (0x55 << 8) | (0x55 << 16) | (0x55 << 24);
     // 0xAAAAAAAA
@@ -251,12 +251,12 @@ int isLessOrEqual(int x, int y) {
     // highest_bit == 0 => eq = 1, else 0
     int high_eq = !highest_bit;
     // x < y => less = 1, else 0
-    int less = !(highest_bit ^ 1);
+    int high_less = !(highest_bit ^ 1);
 
     // 比较低31位
     int low_bits = (y & max) + ~(x & max) + 1;
     int low_le = !(low_bits & min) | !(low_bits ^ 0);
-    int res = less | (high_eq & low_le);
+    int res = high_less | (high_eq & low_le);
     return res;
 }
 // 4
@@ -268,8 +268,16 @@ int isLessOrEqual(int x, int y) {
  *   Max ops: 12
  *   Rating: 4
  */
+
+/* 思路：取负数 再或自身, 再判断符号位
+   非零时：正常情况一负一正，按位或之后，符号位为1，特殊情况0x80000000也满足要求
+   零则仍为零
+*/
 int logicalNeg(int x) {
-    return 2;
+    int min = 1 << 31;
+    int t1 = (~x + 1) | x;
+    int res = ((t1 ^ min) >> 31) & 1;
+    return res;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -283,8 +291,45 @@ int logicalNeg(int x) {
  *  Max ops: 90
  *  Rating: 4
  */
+/* 之前的思路(超过了Max ops要求)：
+ * 1. 负数取反，去掉符号位变成正数，正数不变
+ * 2. 然后将第一位1（从高到低）开始，全部变为1
+ *    例如：0b01001...0 => 0b01111...1
+ * 3. 将所有位的1加起来(很无脑的思路，每次取位移取最后一位再总和，太多操作数了)
+ *
+ * 新思路，（抄别人的）:
+ * 1. 负数取反，去掉符号位变成正数，正数不变
+ * 2. 看代码中的注释吧
+ */
 int howManyBits(int x) {
-    return 0;
+    int min = 1 << 31;
+    // 1.(这最简单的一步，绝对原创)
+    int zero_or_neg_one = (x & min) >> 31;
+    int px = zero_or_neg_one ^ x;
+    // 2.(旧思路，放在这留作纪念)
+    // 这也是网上找的，可略微修改用来计算最近似2的次方，可以用在这
+    // px |= px >> 1;
+    // px |= px >> 2;
+    // px |= px >> 4;
+    // px |= px >> 8;
+    // px |= px >> 16;
+
+    // 2.
+    // 判断高16位是否有1，有说明低16全为1，则需要加16,后面以此类推
+    int r1, r2, r3, r4, r5, r6;
+    r1 = !!(px >> 16) << 4;
+    // 很神奇，自己体会
+    px >>= r1;
+    r2 = !!(px >> 8) << 3;
+    px >>= r2;
+    r3 = !!(px >> 4) << 2;
+    px >>= r3;
+    r4 = !!(px >> 2) << 1;
+    px >>= r4;
+    r5 = !!(px >> 1);
+    px >>= r5;
+    r6 = px;
+    return r1 + r2 + r3 + r4 + r5 + r6 + 1;
 }
 // float
 /*
@@ -299,7 +344,26 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-    return 2;
+    unsigned sign = uf & 0x80000000;
+    unsigned exp = uf & 0x7f800000;
+    unsigned frac = uf & 0x007fffff;
+    unsigned int res = 0;
+    if (exp == 0) {
+        // 非规格化
+        frac <<= 1;
+        res = sign | frac;
+    } else if (exp == 0x7f800000 /*  && frac == 0 */) {
+        // 无穷大或NaN直接返回原值
+        res = uf;
+    } else {
+        // 规格化
+        exp += 0x00800000;
+        if (exp == 0x7f800000) {
+            frac = 0;
+        }
+        res = sign | exp | frac;
+    }
+    return res;
 }
 /*
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -314,7 +378,55 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-    return 2;
+    // 大概是有问题的，不管了
+    unsigned sign = uf & 0x80000000;
+    unsigned exp = uf & 0x7f800000;
+    unsigned frac = uf & 0x007fffff;
+    int res = 0;
+    int E = (exp >> 23) - 127;
+    if (exp == 0) {
+        // 非规格化
+        res = 0;
+    } else if (exp == 0x7f800000) {
+        // 无穷大或NaN
+        res = 0x80000000u;
+    } else if (E >= -1) {
+        // int max = 0x7FFFFFFF;
+        int min = 0x80000000;
+        // 规格化
+        // int E = (exp >> 23) - 127;
+        if (sign) {
+            // 负数
+            if (E > 31) {
+                res = min;
+            } else {
+                frac |= 0x00800000;
+                frac >>= (22 - E);
+                // 获取最后两位，判断是否需要进一
+                unsigned last2 = (frac & 3);
+                unsigned one = last2 == 3;
+                frac = (frac >> 1) + one;
+                res = -frac;
+            }
+        } else {
+            // 正数
+            if (E >= 31) {
+                res = min;
+            } else {
+                // 加一
+                frac |= 0x00800000;
+                frac >>= (22 - E);
+                // 获取最后两位，判断是否需要进一
+                unsigned last2 = (frac & 3);
+                unsigned one = last2 == 3;
+                frac = (frac >> 1) + one;
+                res = frac;
+            }
+        }
+    } else {
+        res = 0;
+    }
+    return res;
 }
 /*
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -330,5 +442,19 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+    int res = 0;
+    if (x < -149) {
+        res = 0;
+    } else if (x >= -149 && x < -126) {
+        unsigned move = -127 - x;
+        res = 0x00400000 >> move;
+    } else if (x >= -126 && x <= 127) {
+        int e = x + 127;
+        res = e << 23;
+    } else /* if
+       (x > 127) */
+    {
+        res = 0x7f800000;
+    }
+    return res;
 }
